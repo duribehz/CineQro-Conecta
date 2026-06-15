@@ -1,0 +1,954 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CineQro Conecta</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,700;1,300&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0d0d0d;
+  --sidebar: #111111;
+  --card: #181818;
+  --card-hover: #222222;
+  --accent: #4169E1;
+  --accent2: #4A6FE3;
+  --text: #f0ece4;
+  --muted: #888880;
+  --border: #2a2a2a;
+  --tag-bg: #1e1e1e;
+  --search-bg: #1a1a1a;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'DM Sans', sans-serif;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* ── LAYOUT ── */
+.app { display: flex; min-height: 100vh; }
+
+/* ── SIDEBAR ── */
+.sidebar {
+  width: 260px;
+  min-height: 100vh;
+  background: var(--sidebar);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  padding: 28px 0;
+  position: fixed;
+  top: 0; left: 0; bottom: 0;
+  z-index: 100;
+  transition: transform .3s ease;
+}
+.logo {
+  padding: 0 28px 32px;
+  border-bottom: 1px solid var(--border);
+}
+.logo-text {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 2rem;
+  letter-spacing: 2px;
+  line-height: 1;
+}
+.logo-text span.qro { color: var(--accent); }
+.logo-text span.cine { color: var(--text); }
+.logo-sub { font-size: 0.65rem; letter-spacing: 3px; color: var(--muted); margin-top: 4px; }
+
+.nav { padding: 24px 0; flex: 1; }
+.nav-item {
+  display: flex; align-items: center; gap: 14px;
+  padding: 13px 28px;
+  font-size: 1.05rem;
+  font-weight: 500;
+  color: var(--muted);
+  cursor: pointer;
+  border-left: 3px solid transparent;
+  transition: all .2s;
+  text-decoration: none;
+}
+.nav-item:hover { color: var(--text); background: rgba(255,255,255,.04); }
+.nav-item.active { color: var(--accent); border-left-color: var(--accent); background: rgba(232,160,32,.07); }
+.nav-icon { font-size: 1.1rem; }
+
+.mood-section {
+  padding: 20px 28px;
+  border-top: 1px solid var(--border);
+}
+.mood-label { font-size: 0.7rem; letter-spacing: 2px; color: var(--muted); margin-bottom: 12px; text-transform: uppercase; }
+.moods { display: flex; flex-wrap: wrap; gap: 8px; }
+.mood-btn {
+  padding: 5px 12px; border-radius: 20px;
+  font-size: 0.75rem; font-weight: 500;
+  border: 1px solid var(--border);
+  background: transparent; color: var(--muted);
+  cursor: pointer; transition: all .2s;
+}
+.mood-btn:hover, .mood-btn.active { background: var(--accent); color: #000; border-color: var(--accent); }
+
+/* ── MAIN ── */
+.main { margin-left: 260px; flex: 1; padding: 0; }
+
+/* ── TOPBAR ── */
+.topbar {
+  position: sticky; top: 0; z-index: 50;
+  background: rgba(13,13,13,.92);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+  padding: 16px 36px;
+  display: flex; align-items: center; gap: 16px;
+}
+.search-wrap {
+  flex: 1; max-width: 560px;
+  display: flex; align-items: center; gap: 0;
+  background: var(--search-bg);
+  border: 1px solid var(--border);
+  border-radius: 40px;
+  overflow: hidden;
+  transition: border-color .2s;
+}
+.search-wrap:focus-within { border-color: var(--accent); }
+.search-wrap input {
+  flex: 1; background: transparent; border: none; outline: none;
+  color: var(--text); font-family: 'DM Sans', sans-serif;
+  font-size: 0.9rem; padding: 11px 20px;
+}
+.search-wrap input::placeholder { color: var(--muted); }
+.search-btn {
+  background: var(--accent); border: none; cursor: pointer;
+  padding: 11px 18px; color: #000; font-size: 1rem;
+  transition: background .2s;
+}
+.search-btn:hover { background: #f5b535; }
+
+.top-right { display: flex; align-items: center; gap: 12px; margin-left: auto; }
+.btn-profile {
+  width: 38px; height: 38px; border-radius: 50%;
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
+  border: none; cursor: pointer; display: flex; align-items: center; justify-content: center;
+  font-size: 1rem; color: #fff;
+}
+.btn-onboarding {
+  padding: 9px 18px; border-radius: 20px;
+  background: transparent; border: 1px solid var(--accent);
+  color: var(--accent); font-family: 'DM Sans', sans-serif;
+  font-size: 0.82rem; font-weight: 500;
+  cursor: pointer; transition: all .2s; white-space: nowrap;
+}
+.btn-onboarding:hover { background: var(--accent); color: #000; }
+
+/* ── HERO ── */
+.hero {
+  background: linear-gradient(to bottom, #1a0e00, var(--bg));
+  padding: 40px 36px 0;
+  border-bottom: 1px solid var(--border);
+}
+.hero-inner { display: flex; align-items: flex-end; gap: 36px; }
+.hero-poster {
+  width: 160px; height: 230px; border-radius: 8px;
+  background: linear-gradient(135deg, #2a1500, #4a2500);
+  flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 3rem; position: relative; overflow: hidden;
+}
+.hero-poster::after {
+  content: ''; position: absolute; inset: 0;
+  background: linear-gradient(to top, rgba(0,0,0,.5), transparent);
+}
+
+.poster-content {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+}
+
+.poster-content img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.hero-info { padding-bottom: 28px; }
+.hero-badge {
+  display: inline-block; padding: 3px 10px;
+  background: var(--accent); color: #000;
+  font-size: 0.68rem; font-weight: 700; letter-spacing: 2px;
+  text-transform: uppercase; border-radius: 3px; margin-bottom: 12px;
+}
+.hero-title {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 3.2rem; letter-spacing: 1px; line-height: 1;
+  margin-bottom: 10px;
+}
+.hero-meta { color: var(--muted); font-size: 0.85rem; margin-bottom: 14px; display: flex; gap: 16px; flex-wrap: wrap; }
+.hero-meta span { display: flex; align-items: center; gap: 5px; }
+.hero-desc { font-size: 0.9rem; line-height: 1.6; color: #aaa; max-width: 500px; margin-bottom: 20px; }
+.hero-actions { display: flex; gap: 12px; }
+.btn-watch {
+  padding: 10px 24px; background: var(--accent); color: #000;
+  border: none; border-radius: 6px; font-family: 'DM Sans', sans-serif;
+  font-weight: 700; font-size: 0.9rem; cursor: pointer; transition: background .2s;
+}
+.btn-watch:hover { background: #4169E1; }
+.btn-save {
+  padding: 10px 18px; background: transparent;
+  border: 1px solid var(--border); color: var(--text);
+  border-radius: 6px; font-family: 'DM Sans', sans-serif;
+  font-size: 0.9rem; cursor: pointer; transition: all .2s;
+}
+.btn-save:hover { border-color: var(--accent); color: var(--accent); }
+
+/* ── CONTENT ── */
+.content { padding: 36px 36px 60px; }
+
+/* ── SECTION ── */
+.section { margin-bottom: 42px; }
+.section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
+.section-title {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 1.4rem; letter-spacing: 1.5px;
+  border-left: 3px solid var(--accent); padding-left: 12px;
+}
+.see-all { color: var(--accent); font-size: 0.8rem; font-weight: 500; cursor: pointer; letter-spacing: 1px; }
+.see-all:hover { text-decoration: underline; }
+
+/* ── FILTERS ── */
+.filters { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 24px; }
+.filter-btn {
+  padding: 6px 16px; border-radius: 20px;
+  font-size: 0.8rem; font-weight: 500;
+  border: 1px solid var(--border); background: transparent;
+  color: var(--muted); cursor: pointer; transition: all .2s;
+  font-family: 'DM Sans', sans-serif;
+}
+.filter-btn:hover, .filter-btn.active { background: var(--accent); color: #000; border-color: var(--accent); }
+
+/* ── MOVIE GRID ── */
+.movie-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 20px; }
+.movie-card {
+  cursor: pointer; border-radius: 8px; overflow: hidden;
+  background: var(--card); transition: transform .25s, box-shadow .25s;
+  position: relative;
+}
+.movie-card:hover { transform: translateY(-6px); box-shadow: 0 20px 40px rgba(0,0,0,.6); }
+.movie-card:hover .card-overlay { opacity: 1; }
+
+.card-poster img{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  display:block;
+}
+
+.card-overlay {
+  position: absolute; inset: 0;
+  background: linear-gradient(to top, rgba(0,0,0,.9) 0%, rgba(0,0,0,.3) 60%, transparent 100%);
+  opacity: 0; transition: opacity .25s;
+  display: flex; align-items: flex-end; padding: 14px;
+}
+.card-play {
+  width: 36px; height: 36px; border-radius: 50%;
+  background: var(--accent); border: none; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.9rem; color: #000; flex-shrink: 0;
+}
+
+.card-info { padding: 12px; }
+.card-title { font-size: 0.85rem; font-weight: 600; line-height: 1.3; margin-bottom: 6px; }
+.card-meta { display: flex; align-items: center; justify-content: space-between; }
+.card-year { font-size: 0.75rem; color: var(--muted); }
+.card-rating { display: flex; align-items: center; gap: 4px; font-size: 0.75rem; color: var(--accent); font-weight: 600; }
+
+.local-badge {
+  position: absolute; top: 8px; left: 8px;
+  background: var(--accent); color: #000;
+  font-size: 0.6rem; font-weight: 800; letter-spacing: 1.5px;
+  padding: 2px 7px; border-radius: 3px; text-transform: uppercase;
+}
+.indie-badge {
+  position: absolute; top: 8px; left: 8px;
+  background: var(--accent2); color: #fff;
+  font-size: 0.6rem; font-weight: 800; letter-spacing: 1.5px;
+  padding: 2px 7px; border-radius: 3px; text-transform: uppercase;
+}
+
+/* ── EVENTOS ── */
+.events-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px; }
+.event-card {
+  background: var(--card); border-radius: 8px; padding: 18px;
+  border: 1px solid var(--border); cursor: pointer;
+  transition: border-color .2s, transform .2s;
+  display: flex; gap: 16px;
+}
+.event-card:hover { border-color: var(--accent); transform: translateY(-3px); }
+.event-date {
+  text-align: center; flex-shrink: 0;
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
+  border-radius: 6px; padding: 10px 14px; color: #000;
+}
+.event-day { font-family: 'Bebas Neue', sans-serif; font-size: 1.8rem; line-height: 1; }
+.event-month { font-size: 0.65rem; font-weight: 800; letter-spacing: 1.5px; text-transform: uppercase; }
+.event-info { flex: 1; }
+.event-title { font-size: 0.9rem; font-weight: 600; margin-bottom: 4px; }
+.event-venue { font-size: 0.78rem; color: var(--accent); margin-bottom: 6px; }
+.event-desc { font-size: 0.75rem; color: var(--muted); line-height: 1.5; }
+
+/* ── ONBOARDING MODAL ── */
+.modal-bg {
+  position: fixed; inset: 0; z-index: 200;
+  background: rgba(0,0,0,.85); backdrop-filter: blur(6px);
+  display: flex; align-items: center; justify-content: center;
+  opacity: 0; pointer-events: none; transition: opacity .3s;
+}
+.modal-bg.open { opacity: 1; pointer-events: all; }
+.modal {
+  background: #141414; border: 1px solid var(--border);
+  border-radius: 16px; padding: 40px; max-width: 520px; width: 90%;
+  transform: translateY(30px); transition: transform .3s;
+  max-height: 85vh; overflow-y: auto;
+}
+.modal-bg.open .modal { transform: translateY(0); }
+.modal-step { display: none; }
+.modal-step.active { display: block; }
+.modal-title {
+  font-family: 'Bebas Neue', sans-serif; font-size: 2rem;
+  letter-spacing: 2px; margin-bottom: 6px; color: var(--accent);
+}
+.modal-sub { font-size: 0.88rem; color: var(--muted); margin-bottom: 28px; line-height: 1.5; }
+.form-group { margin-bottom: 20px; }
+.form-label { font-size: 0.78rem; letter-spacing: 1.5px; color: var(--muted); text-transform: uppercase; margin-bottom: 8px; display: block; }
+.form-select, .form-input {
+  width: 100%; background: var(--search-bg); border: 1px solid var(--border);
+  border-radius: 8px; color: var(--text); padding: 11px 14px;
+  font-family: 'DM Sans', sans-serif; font-size: 0.9rem; outline: none;
+  transition: border-color .2s; appearance: none;
+}
+.form-select:focus, .form-input:focus { border-color: var(--accent); }
+.checkbox-grid { display: flex; flex-wrap: wrap; gap: 8px; }
+.checkbox-item {
+  padding: 7px 14px; border-radius: 20px;
+  border: 1px solid var(--border); background: transparent;
+  color: var(--muted); font-family: 'DM Sans', sans-serif;
+  font-size: 0.8rem; cursor: pointer; transition: all .2s;
+}
+.checkbox-item:hover, .checkbox-item.selected { background: var(--accent); color: #000; border-color: var(--accent); }
+.modal-actions { display: flex; gap: 12px; margin-top: 28px; }
+.btn-primary {
+  flex: 1; padding: 12px; background: var(--accent); color: #000;
+  border: none; border-radius: 8px; font-family: 'DM Sans', sans-serif;
+  font-weight: 700; font-size: 0.95rem; cursor: pointer; transition: background .2s;
+}
+.btn-primary:hover { background: #4A6FE3; }
+.btn-secondary {
+  padding: 12px 20px; background: transparent;
+  border: 1px solid var(--border); color: var(--muted);
+  border-radius: 8px; font-family: 'DM Sans', sans-serif;
+  font-size: 0.9rem; cursor: pointer; transition: all .2s;
+}
+.btn-secondary:hover { border-color: var(--muted); color: var(--text); }
+.step-indicator { display: flex; gap: 6px; margin-bottom: 28px; }
+.step-dot {
+  width: 8px; height: 8px; border-radius: 50%;
+  background: var(--border); transition: all .3s;
+}
+.step-dot.active { background: var(--accent); width: 24px; border-radius: 4px; }
+.step-dot.done { background: var(--muted); }
+
+/* ── DETAIL MODAL ── */
+.detail-modal-bg {
+  position: fixed; inset: 0; z-index: 300;
+  background: rgba(0,0,0,.9); backdrop-filter: blur(8px);
+  display: flex; align-items: center; justify-content: center;
+  opacity: 0; pointer-events: none; transition: opacity .3s;
+}
+.detail-modal-bg.open { opacity: 1; pointer-events: all; }
+.detail-modal {
+  background: #141414; border: 1px solid var(--border);
+  border-radius: 16px; max-width: 700px; width: 95%;
+  max-height: 90vh; overflow-y: auto;
+  transform: scale(.95); transition: transform .3s;
+}
+.detail-modal-bg.open .detail-modal { transform: scale(1); }
+.detail-hero {
+  height: 260px; display: flex; align-items: flex-end;
+  padding: 24px; position: relative; overflow: hidden; border-radius: 16px 16px 0 0;
+}
+.detail-hero::after {
+  content: ''; position: absolute; inset: 0;
+  background: linear-gradient(to top, #141414 0%, rgba(0,0,0,.4) 60%, transparent 100%);
+}
+.detail-bg-emoji { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 7rem; opacity: .25; }
+.detail-body { padding: 24px 28px 32px; }
+.detail-title { font-family: 'Bebas Neue', sans-serif; font-size: 2.4rem; letter-spacing: 1px; margin-bottom: 8px; }
+.detail-meta { display: flex; gap: 14px; flex-wrap: wrap; color: var(--muted); font-size: 0.82rem; margin-bottom: 16px; }
+.detail-meta .star { color: var(--accent); }
+.detail-tags { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 18px; }
+.tag {
+  padding: 4px 12px; border-radius: 4px;
+  background: var(--tag-bg); border: 1px solid var(--border);
+  font-size: 0.75rem; color: var(--muted);
+}
+.detail-desc { font-size: 0.88rem; line-height: 1.7; color: #aaa; margin-bottom: 24px; }
+.detail-why {
+  background: rgba(232,160,32,.08); border: 1px solid rgba(232,160,32,.2);
+  border-radius: 8px; padding: 14px 18px; margin-bottom: 24px;
+}
+.detail-why-title { font-size: 0.7rem; letter-spacing: 2px; color: var(--accent); text-transform: uppercase; margin-bottom: 6px; }
+.detail-why-text { font-size: 0.85rem; color: #ccc; line-height: 1.6; }
+.detail-actions { display: flex; gap: 12px; }
+.close-btn {
+  position: absolute; top: 16px; right: 16px; z-index: 10;
+  width: 34px; height: 34px; border-radius: 50%;
+  background: rgba(0,0,0,.6); border: 1px solid var(--border);
+  color: var(--text); cursor: pointer; display: flex; align-items: center; justify-content: center;
+  font-size: 1rem; transition: all .2s;
+}
+.close-btn:hover { background: var(--accent2); border-color: var(--accent2); }
+
+/* ── RATING STARS ── */
+.stars-input { display: flex; gap: 6px; }
+.star-btn { background: none; border: none; cursor: pointer; font-size: 1.4rem; color: var(--border); transition: color .15s; }
+.star-btn.lit { color: var(--accent); }
+
+/* ── TOAST ── */
+.toast {
+  position: fixed; bottom: 30px; right: 30px; z-index: 500;
+  background: #1e1e1e; border: 1px solid var(--accent);
+  border-radius: 8px; padding: 14px 20px;
+  font-size: 0.85rem; color: var(--text);
+  transform: translateY(80px); opacity: 0;
+  transition: all .35s ease;
+  display: flex; align-items: center; gap: 10px;
+  max-width: 320px;
+}
+.toast.show { transform: translateY(0); opacity: 1; }
+
+/* ── RESPONSIVE ── */
+@media (max-width: 768px) {
+  .sidebar { transform: translateX(-100%); }
+  .sidebar.open { transform: translateX(0); }
+  .main { margin-left: 0; }
+  .hero-inner { flex-direction: column; }
+  .movie-grid { grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); }
+}
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<aside class="sidebar" id="sidebar">
+  <div class="logo">
+    <div class="logo-text">
+      <span class="cine">CINE</span><span class="qro">QRO</span><br>
+      <span class="cine">CON</span><span class="qro">ECTA</span>
+    </div>
+    <div class="logo-sub">Descubre tu cine, vive tu cultura</div>
+  </div>
+  <nav class="nav">
+    <a class="nav-item active" onclick="setView('peliculas')">
+      <span class="nav-icon">🎬</span> Películas
+    </a>
+    <a class="nav-item" onclick="setView('cortos')">
+      <span class="nav-icon">🎞️</span> Cortos
+    </a>
+    <a class="nav-item" onclick="setView('eventos')">
+      <span class="nav-icon">📍</span> Eventos Qro
+    </a>
+    <a class="nav-item" onclick="setView('mis-listas')">
+      <span class="nav-icon">❤️</span> Mis Listas
+    </a>
+    <a class="nav-item" onclick="setView('nosotros')">
+      <span class="nav-icon">👥</span> Nosotros
+    </a>
+  </nav>
+  <div class="mood-section">
+    <div class="mood-label">Estado de Ánimo</div>
+    <div class="moods">
+      <button class="mood-btn active" onclick="setMood(this,'🎭 Drama')">🎭 Drama</button>
+      <button class="mood-btn" onclick="setMood(this,'😂 Comedia')">😂 Comedia</button>
+      <button class="mood-btn" onclick="setMood(this,'👻 Terror')">👻 Terror</button>
+      <button class="mood-btn" onclick="setMood(this,'🤔 Reflexivo')">🤔 Reflexivo</button>
+      <button class="mood-btn" onclick="setMood(this,'💃 Familiar')">💃 Familiar</button>
+    </div>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<main class="main">
+  <!-- TOPBAR -->
+  <div class="topbar">
+    <div class="search-wrap">
+      <input type="text" id="searchInput" placeholder="Buscar películas, directores, géneros…" oninput="filterMovies()">
+      <button class="search-btn" onclick="filterMovies()">
+
+        <svg height="25px" width="25px" version="1.1" id="_x32_" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 512 512" xml:space="preserve" fill="#ffffff"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <style type="text/css"> .st0{fill:#ffffff;} </style> <g> <path class="st0" d="M332.998,291.918c52.2-71.895,45.941-173.338-18.834-238.123c-71.736-71.728-188.468-71.728-260.195,0 c-71.746,71.745-71.746,188.458,0,260.204c64.775,64.775,166.218,71.034,238.104,18.844l14.222,14.203l40.916-40.916 L332.998,291.918z M278.488,278.333c-52.144,52.134-136.699,52.144-188.852,0c-52.152-52.153-52.152-136.717,0-188.861 c52.154-52.144,136.708-52.144,188.852,0C330.64,141.616,330.64,226.18,278.488,278.333z"></path> <path class="st0" d="M109.303,119.216c-27.078,34.788-29.324,82.646-6.756,119.614c2.142,3.489,6.709,4.603,10.208,2.46 c3.49-2.142,4.594-6.709,2.462-10.198v0.008c-19.387-31.7-17.45-72.962,5.782-102.771c2.526-3.228,1.946-7.898-1.292-10.405 C116.48,115.399,111.811,115.979,109.303,119.216z"></path> <path class="st0" d="M501.499,438.591L363.341,315.178l-47.98,47.98l123.403,138.168c12.548,16.234,35.144,13.848,55.447-6.456 C514.505,474.576,517.743,451.138,501.499,438.591z"></path> </g> </g></svg>
+
+
+      </button>
+    </div>
+    <div class="top-right">
+      <button class="btn-onboarding" onclick="openOnboarding()">Personalizar</button>
+      <button class="btn-profile" onclick="alert('Perfil próximamente')">👤</button>
+    </div>
+  </div>
+
+  <!-- HERO -->
+  <div class="hero" id="heroSection">
+    <div class="hero-inner">
+      <div class="hero-poster" style="background:linear-gradient(135deg,#1a0000,#5c1a1a)">
+        <span class="poster-content">
+          <img src="./posters/dias_de_gracia.jpg" alt="Dias de Gracia">
+        </span>
+      </div>
+      <div class="hero-info">
+        <div class="hero-badge">Destacada de la Semana</div>
+        <div class="hero-title">Días de Gracia</div>
+        <div class="hero-meta">
+          <span>🎬 Everardo Gout</span>
+          <span>📅 2011</span>
+          <span>⏱ 130 min</span>
+          <span style="color:var(--accent)">★ 8.1</span>
+        </div>
+        <div class="hero-desc">Un thriller policial que entrelaza tres historias durante los Mundiales de fútbol de 2006, 2002 y 2010 en Ciudad de México. Una obra del cine mexicano contemporáneo que mezcla violencia y esperanza.</div>
+        <div class="hero-actions">
+          <button class="btn-watch" onclick="showDetail(movies[0])">▶ Ver detalles</button>
+          <button class="btn-save" onclick="addToList(movies[0]);showToast('❤️ Agregada a tu lista')">+ Mi lista</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CONTENT -->
+  <div class="content">
+
+    <!-- VIEW: PELICULAS -->
+    <div id="view-peliculas">
+      <div class="section">
+        <div class="section-header">
+          <div class="section-title">Para Ti Hoy</div>
+          <span class="see-all">Ver todo →</span>
+        </div>
+        <div class="filters" id="genreFilters">
+          <button class="filter-btn active" onclick="filterGenre(this,'all')">Todo</button>
+          <button class="filter-btn" onclick="filterGenre(this,'Queretano')">Queretano</button>
+          <button class="filter-btn" onclick="filterGenre(this,'Independiente')">Independiente</button>
+          <button class="filter-btn" onclick="filterGenre(this,'Drama')">Drama</button>
+          <button class="filter-btn" onclick="filterGenre(this,'Comedia')">Comedia</button>
+          <button class="filter-btn" onclick="filterGenre(this,'Terror')">Terror</button>
+          <button class="filter-btn" onclick="filterGenre(this,'Documental')">Documental</button>
+          <button class="filter-btn" onclick="filterGenre(this,'Clásico')">Clásico</button>
+        </div>
+        <div class="movie-grid" id="movieGrid"></div>
+      </div>
+
+      <div class="section">
+        <div class="section-header">
+          <div class="section-title">Cine Queretano</div>
+          <span class="see-all">Ver todo →</span>
+        </div>
+        <div class="movie-grid" id="qroGrid"></div>
+      </div>
+
+      <div class="section">
+        <div class="section-header">
+          <div class="section-title">Clásicos del Cine Mexicano</div>
+          <span class="see-all">Ver todo →</span>
+        </div>
+        <div class="movie-grid" id="clasicosGrid"></div>
+      </div>
+    </div>
+
+    <!-- VIEW: CORTOS -->
+    <div id="view-cortos" style="display:none">
+      <div class="section">
+        <div class="section-header">
+          <div class="section-title">Cortometrajes Mexicanos</div>
+        </div>
+        <div class="movie-grid" id="cortosGrid"></div>
+      </div>
+    </div>
+
+    <!-- VIEW: EVENTOS -->
+    <div id="view-eventos" style="display:none">
+      <div class="section">
+        <div class="section-header">
+          <div class="section-title">Eventos Culturales en Querétaro</div>
+        </div>
+        <div class="events-grid" id="eventsGrid"></div>
+      </div>
+    </div>
+
+    <!-- VIEW: MIS LISTAS -->
+    <div id="view-mis-listas" style="display:none">
+      <div class="section">
+        <div class="section-header">
+          <div class="section-title">❤️ Mi Lista</div>
+        </div>
+        <div class="movie-grid" id="myListGrid">
+          <p style="color:var(--muted);grid-column:1/-1;padding:20px 0">Aún no tienes películas guardadas. ¡Explora y agrega las que te interesen!</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- VIEW: NOSOTROS -->
+    <div id="view-nosotros" style="display:none">
+      <div class="section">
+        <div class="section-header"><div class="section-title">Sobre CineQro Conecta</div></div>
+        <div style="max-width:620px;line-height:1.8;color:#bbb;font-size:.92rem">
+          <p style="margin-bottom:16px"><strong style="color:var(--accent)">CineQro Conecta</strong> es una plataforma de recomendación cultural diseñada para universitarios queretanos que busca visibilizar el cine mexicano e independiente de Querétaro.</p>
+          <p style="margin-bottom:16px">Nuestro algoritmo prioriza: <strong style="color:var(--text)">1) Cine queretano → 2) Cine mexicano → 3) Cine latinoamericano</strong>, rompiendo con la lógica de las plataformas globales que priorizan contenido comercial.</p>
+          <p style="margin-bottom:16px">Incorporamos <em style="color:var(--accent)">serendipia dirigida</em>: recomendamos lo que más disfrutarás <em>y</em> algo que quizás nunca hubieras descubierto.</p>
+          <p style="color:var(--muted);font-size:.8rem">Proyecto académico — Tecnológico de Monterrey · CO1010.601 · 2026</p>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</main>
+
+<!-- ONBOARDING MODAL -->
+<div class="modal-bg" id="onboardingModal">
+  <div class="modal">
+    <div class="step-indicator" id="stepIndicator"></div>
+    <!-- Step 1 -->
+    <div class="modal-step active" id="step1">
+      <div class="modal-title">¡Bienvenido!</div>
+      <div class="modal-sub">Cuéntanos sobre ti para personalizar tus recomendaciones. Solo tomará un minuto.</div>
+      <div class="form-group">
+        <label class="form-label">¿Cómo te describes?</label>
+        <select class="form-select" id="userType">
+          <option value="">Selecciona…</option>
+          <option>Universitario(a)</option>
+          <option>Joven no universitario</option>
+          <option>Padre/Madre de familia</option>
+          <option>Docente</option>
+          <option>Otro</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Edad</label>
+        <select class="form-select" id="userAge">
+          <option value="">Selecciona…</option>
+          <option>15-17 años</option>
+          <option>18-24 años</option>
+          <option>25-35 años</option>
+          <option>36-50 años</option>
+          <option>50+ años</option>
+        </select>
+      </div>
+      <div class="modal-actions">
+        <button class="btn-secondary" onclick="closeOnboarding()">Omitir</button>
+        <button class="btn-primary" onclick="nextStep(2)">Continuar →</button>
+      </div>
+    </div>
+    <!-- Step 2 -->
+    <div class="modal-step" id="step2">
+      <div class="modal-title">Tus géneros favoritos</div>
+      <div class="modal-sub">Selecciona todos los que te gusten. Usaremos esto para encontrar joyas del cine mexicano.</div>
+      <div class="form-group">
+        <div class="checkbox-grid" id="genreCheckboxes">
+          <button class="checkbox-item" onclick="toggle(this)">Drama</button>
+          <button class="checkbox-item" onclick="toggle(this)">Comedia</button>
+          <button class="checkbox-item" onclick="toggle(this)">Terror</button>
+          <button class="checkbox-item" onclick="toggle(this)">Acción</button>
+          <button class="checkbox-item" onclick="toggle(this)">Documental</button>
+          <button class="checkbox-item" onclick="toggle(this)">Romance</button>
+          <button class="checkbox-item" onclick="toggle(this)">Thriller</button>
+          <button class="checkbox-item" onclick="toggle(this)">Animación</button>
+          <button class="checkbox-item" onclick="toggle(this)">Cine Clásico</button>
+          <button class="checkbox-item" onclick="toggle(this)">Cine Independiente</button>
+        </div>
+      </div>
+      <div class="modal-actions">
+        <button class="btn-secondary" onclick="nextStep(1)">← Atrás</button>
+        <button class="btn-primary" onclick="nextStep(3)">Continuar →</button>
+      </div>
+    </div>
+    <!-- Step 3 -->
+    <div class="modal-step" id="step3">
+      <div class="modal-title">¿Qué te interesa?</div>
+      <div class="modal-sub">¿Qué tan abierto estás a descubrir contenido nuevo?</div>
+      <div class="form-group">
+        <label class="form-label">Interés en cine local queretano</label>
+        <select class="form-select" id="localInterest">
+          <option>Mucho — quiero apoyar lo local</option>
+          <option>Bastante — si es bueno, lo veo</option>
+          <option>Algo — depende del tema</option>
+          <option>Poco — prefiero cine conocido</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Disposición a descubrir contenido nuevo</label>
+        <div class="checkbox-grid">
+          <button class="checkbox-item selected" onclick="toggle(this)">🌱 Muy abierto</button>
+          <button class="checkbox-item" onclick="toggle(this)">😌 Algo abierto</button>
+          <button class="checkbox-item" onclick="toggle(this)">🛡 Solo lo seguro</button>
+        </div>
+      </div>
+      <div class="modal-actions">
+        <button class="btn-secondary" onclick="nextStep(2)">← Atrás</button>
+        <button class="btn-primary" onclick="finishOnboarding()">¡Listo! Ver recomendaciones</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- DETAIL MODAL -->
+<div class="detail-modal-bg" id="detailModal">
+  <div class="detail-modal" style="position:relative">
+    <button class="close-btn" onclick="closeDetail()">✕</button>
+    <div class="detail-hero" id="detailHero">
+      <div class="detail-bg-emoji" id="detailBgEmoji"></div>
+    </div>
+    <div class="detail-body">
+      <div class="detail-title" id="detailTitle"></div>
+      <div class="detail-meta" id="detailMeta"></div>
+      <div class="detail-tags" id="detailTags"></div>
+      <div class="detail-desc" id="detailDesc"></div>
+      <div class="detail-why">
+        <div class="detail-why-title">¿Por qué te la recomendamos?</div>
+        <div class="detail-why-text" id="detailWhy"></div>
+      </div>
+      <div style="margin-bottom:20px">
+        <div style="font-size:.78rem;letter-spacing:1.5px;color:var(--muted);text-transform:uppercase;margin-bottom:10px">Tu calificación</div>
+        <div class="stars-input" id="starsInput"></div>
+      </div>
+      <div class="detail-actions">
+        <button class="btn-watch" id="detailWatchBtn">▶ Ver en línea</button>
+        <button class="btn-save" id="detailSaveBtn">+ Mi lista</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast">
+  <span id="toastMsg">✅ ¡Listo!</span>
+</div>
+
+<script>
+// ── DATA ──
+const movies = [
+  { id:1, title:"Días de Gracia", dir:"Everardo Gout", year:2011, rating:8.1, genre:["Drama","Thriller"], poster:"./posters/dias_de_gracia.jpg", cat:"peliculas", type:"nacional", desc:"Thriller policial que entrelaza tres historias durante tres mundiales de fútbol en Ciudad de México.", why:"Coincide con tu gusto por el thriller y el drama. Cine mexicano contemporáneo de alto nivel narrativo." },
+  { id:2, title:"Hasta el Fin de los Tiempos", dir:"Alejandro Molina", year:2019, rating:7.4, genre:["Drama","Romance"], poster:"./posters/hasta_el_fin_de_los_tiempos.jpg", cat:"peliculas", type:"independiente", desc:"Historia de amor y pérdida filmada en locaciones queretanas, con una fotografía íntima y poética.", why:"Producción local queretana. Cine independiente que da voz a narrativas regionales." },
+  { id:3, title:"Fragmentos de Olvido", dir:"Rubén Villa", year:2020, rating:7.8, genre:["Drama","Documental"], poster: "./fragmentos_de_olvido.jpg", cat:"peliculas", type:"queretano", desc:"La memoria como tortura. Un drama visceral sobre identidad y trauma filmado en Querétaro.", why:"Prioridad cultural local. Reflexivo, tal como marcaste en tu estado de ánimo." },
+  { id:4, title:"Los Niños de Morelia", dir:"Gilberto Martínez", year:1945, rating:8.3, genre:["Drama","Clásico"], poster:"./posters/los_ninios_de_morelia.jpg", cat:"peliculas", type:"clasico", desc:"Clásico del cine de oro mexicano sobre los niños españoles refugiados en México durante la Guerra Civil.", why:"Recomendado por usuarios de otra generación. Serendipia dirigida: algo diferente que quizás nunca habrías visto." },
+  { id:5, title:"Ópera", dir:"Arte 7 Films", year:2018, rating:7.2, genre:["Drama","Independiente"], poster:"./posters/opera.jpg", cat:"peliculas", type:"independiente", desc:"Una película de arte independiente que explora la pasión y la obsesión artística en el México contemporáneo.", why:"Cine independiente mexicano que evita los clichés comerciales." },
+  { id:6, title:"Los Ladrones", dir:"Director Emergente", year:2022, rating:7.0, genre:["Thriller","Acción"], pooster:"./posters/los_ladrones.jpg", cat:"peliculas", type:"nacional", desc:"Un thriller urbano de directores emergentes mexicanos. Descarnado, honesto, contemporáneo.", why:"Similar a otros thrillers que te han gustado, pero con una voz nueva." },
+  { id:7, title:"Cris", dir:"Rafael Durán", year:2021, rating:8.0, genre:["Drama","Independiente"], poster:"posters/cris.jpg", cat:"peliculas", type:"independiente", desc:"Retrato íntimo y sensible de la adolescencia en México. Ganadora de varios festivales nacionales.", why:"Alto puntaje en festivales independientes. Coincide con tu interés en cine de calidad." },
+  { id:8, title:"Sinestesia", dir:"Prod. Indie Qro", year:2023, rating:7.5, genre:["Arte","Documental"], poster:"./posters/sinestesia.jpg", cat:"peliculas", type:"queretano", desc:"Documental experimental sobre artistas queretanos que mezcla música, danza y pintura.", why:"Producción queretana reciente. Cultura local que merece ser vista." },
+  { id:9, title:"Nosotros los Nobles", dir:"Gary Alazraki", year:2013, rating:7.6, genre:["Comedia"], posdter: "./posters/nosotros_los_nobles.jpg", cat:"peliculas", type:"nacional", desc:"La comedia mexicana más taquillera de su año. Una familia adinerada aprende el valor del trabajo.", why:"Si te gustan las comedias mexicanas, este es un punto de entrada perfecto al género nacional." },
+  { id:10, title:"Roma", dir:"Alfonso Cuarón", year:2018, rating:8.7, genre:["Drama","Clásico"], poster:"./posters/roma.jpg" , cat:"peliculas", type:"clasico", desc:"Oscar a Mejor Película Internacional. Un retrato íntimo de la Ciudad de México de los 70 a través de los ojos de una trabajadora doméstica.", why:"El cine mexicano en su máxima expresión internacional. Una obra esencial." },
+  { id:11, title:"El Callejón de los Milagros", dir:"Jorge Fons", year:1995, rating:8.2, genre:["Drama","Clásico"], poster:"./posters/el_callejon_de_los_milagros.jpg", cat:"peliculas", type:"clasico", desc:"Basada en la novela de Naguib Mahfouz, adaptada a Ciudad de México. Drama coral sobre vidas entrelazadas en una vecindad.", why:"Clásico moderno del cine mexicano. Serendipia: algo que los mayores adoran y tú también disfrutarás." },
+  { id:12, title:"Y Tu Mamá También", dir:"Alfonso Cuarón", year:2001, rating:8.4, genre:["Drama","Comedia"], poster:"./posters/y_tu_mama_tambien.jpg", cat:"peliculas", type:"clasico", desc:"Road movie sobre dos adolescentes y una mujer española que recorren México. Un clásico del coming-of-age latino.", why:"Imprescindible del cine mexicano. Si no la has visto, es el momento." },
+  // Cortos
+  { id:13, title:"La Migración", dir:"Colectivo Qro", year:2022, rating:7.8, genre:["Documental","Corto"], emoji:"🦋", cat:"cortos", type:"queretano", desc:"Cortometraje documental sobre comunidades migrantes en Querétaro. 18 minutos de una mirada honesta.", why:"Producción local de jóvenes cineastas queretanos." },
+  { id:14, title:"Sombras del Barrio", dir:"Escuela de Cine UAQ", year:2023, rating:7.3, genre:["Drama","Corto"], emoji:"🌆", cat:"cortos", type:"queretano", desc:"Corto de graduación de la UAQ. Historia sobre identidad y barrio en Querétaro.", why:"Cine universitario queretano. Apoya a creadores locales emergentes." },
+  { id:15, title:"El Último Taco", dir:"Samuel Hdz", year:2021, rating:8.0, genre:["Comedia","Corto"], emoji:"🌮", cat:"cortos", type:"nacional", desc:"Comedia absurda sobre un taquero que descubre que vende los mejores tacos del universo. 12 minutos.", why:"Alta calificación en festivales. Comedia mexicana en formato corto." },
+];
+
+const events = [
+  { day:"24", month:"MAY", title:"Ciclo: Nuevo Cine Queretano", venue:"Cineteca Rosalío Solano", desc:"Proyección de 4 cortometrajes de directores emergentes de Querétaro. Entrada libre." },
+  { day:"31", month:"MAY", title:"Festival de Cine UNAM Itinerante", venue:"Centro Cultural Universitario", desc:"Selección de las mejores películas mexicanas del año, presentadas en Querétaro." },
+  { day:"07", month:"JUN", title:"Cine al Aire Libre: Roma", venue:"Jardín Zenea", desc:"Proyección gratuita de Roma de Alfonso Cuarón bajo las estrellas del centro histórico." },
+  { day:"14", month:"JUN", title:"Charla: Cine Independiente Mexicano", venue:"Museo de la Ciudad", desc:"Panel con directores independientes queretanos. Acceso libre. Preguntas abiertas al público." },
+  { day:"21", month:"JUN", title:"Maratón de Cine de Terror Mexicano", venue:"Centro de las Artes", desc:"6 películas de terror nacional en una noche. Comienza a las 8 PM." },
+  { day:"28", month:"JUN", title:"Noche Clásica: El Cine de Oro", venue:"Teatro de la República", desc:"Retrospectiva del cine mexicano de los 40s y 50s con acompañamiento musical en vivo." },
+];
+
+let myList = [];
+let currentFilter = 'all';
+let currentMood = '';
+
+// ── RENDER ──
+function renderGrid(id, list) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.innerHTML = list.map(m => `
+    <div class="movie-card" onclick="showDetail(movies.find(x=>x.id===${m.id}))">
+      <div class="card-poster" style="background:${posterGrad(m.id)}">
+            <img
+              src="${m.poster}"
+              alt="${m.title}">
+        <div class="card-overlay">
+          <button class="card-play">▶</button>
+        </div>
+        ${m.type==='queretano'?'<span class="local-badge">Qro</span>':''}
+        ${m.type==='independiente'?'<span class="indie-badge">Indie</span>':''}
+      </div>
+      <div class="card-info">
+        <div class="card-title">${m.title}</div>
+        <div class="card-meta">
+          <span class="card-year">${m.year}</span>
+          <span class="card-rating">★ ${m.rating}</span>
+        </div>
+      </div>
+    </div>`).join('');
+}
+
+function posterGrad(id) {
+  const gs = [
+    'linear-gradient(135deg,#1a0e00,#5c2a00)',
+    'linear-gradient(135deg,#001a0e,#005c2a)',
+    'linear-gradient(135deg,#0e001a,#2a005c)',
+    'linear-gradient(135deg,#1a0000,#5c1a1a)',
+    'linear-gradient(135deg,#001a1a,#005c5c)',
+    'linear-gradient(135deg,#1a1a00,#5c5c00)',
+  ];
+  return gs[id % gs.length];
+}
+
+function renderEvents() {
+  const el = document.getElementById('eventsGrid');
+  el.innerHTML = events.map(e => `
+    <div class="event-card" onclick="showToast('📅 Evento guardado: ${e.title}')">
+      <div class="event-date">
+        <div class="event-day">${e.day}</div>
+        <div class="event-month">${e.month}</div>
+      </div>
+      <div class="event-info">
+        <div class="event-title">${e.title}</div>
+        <div class="event-venue">📍 ${e.venue}</div>
+        <div class="event-desc">${e.desc}</div>
+      </div>
+    </div>`).join('');
+}
+
+function renderMyList() {
+  const el = document.getElementById('myListGrid');
+  if (myList.length === 0) {
+    el.innerHTML = '<p style="color:var(--muted);grid-column:1/-1;padding:20px 0">Aún no tienes películas guardadas. ¡Explora y agrega las que te interesen!</p>';
+    return;
+  }
+  renderGrid('myListGrid', myList);
+}
+
+// ── FILTERS ──
+function filterMovies() {
+  const q = document.getElementById('searchInput').value.toLowerCase();
+  let list = movies.filter(m => m.cat === 'peliculas');
+  if (currentFilter !== 'all') {
+    list = list.filter(m => m.genre.includes(currentFilter) || m.type === currentFilter.toLowerCase());
+  }
+  if (q) list = list.filter(m => m.title.toLowerCase().includes(q) || m.dir.toLowerCase().includes(q) || m.genre.some(g => g.toLowerCase().includes(q)));
+  renderGrid('movieGrid', list);
+}
+
+function filterGenre(btn, genre) {
+  document.querySelectorAll('#genreFilters .filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  currentFilter = genre;
+  filterMovies();
+}
+
+function setMood(btn, mood) {
+  document.querySelectorAll('.mood-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  currentMood = mood;
+  showToast(`🎭 Modo ${mood} activado`);
+}
+
+// ── VIEWS ──
+function setView(v) {
+  ['peliculas','cortos','eventos','mis-listas','nosotros'].forEach(id => {
+    const el = document.getElementById('view-'+id);
+    if (el) el.style.display = id === v ? 'block' : 'none';
+  });
+  document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+  event.currentTarget.classList.add('active');
+  document.getElementById('heroSection').style.display = v === 'peliculas' ? 'block' : 'none';
+  if (v === 'eventos') renderEvents();
+  if (v === 'mis-listas') renderMyList();
+}
+
+// ── DETAIL MODAL ──
+function showDetail(m) {
+  if (!m) return;
+  document.getElementById('detailBgEmoji').textContent = m.emoji;
+  document.getElementById('detailHero').style.background = posterGrad(m.id);
+  document.getElementById('detailTitle').textContent = m.title;
+  document.getElementById('detailMeta').innerHTML = `
+    <span>🎬 ${m.dir}</span>
+    <span>📅 ${m.year}</span>
+    <span class="star">★ ${m.rating}</span>
+    <span>${m.type === 'queretano' ? '📍 Queretano' : m.type === 'independiente' ? '🎞 Independiente' : '🇲🇽 Nacional'}</span>`;
+  document.getElementById('detailTags').innerHTML = m.genre.map(g => `<span class="tag">${g}</span>`).join('');
+  document.getElementById('detailDesc').textContent = m.desc;
+  document.getElementById('detailWhy').textContent = m.why;
+  // Stars
+  const stars = document.getElementById('starsInput');
+  stars.innerHTML = [1,2,3,4,5].map(i => `<button class="star-btn" onclick="rateStar(this,${i},${m.id})">★</button>`).join('');
+  document.getElementById('detailSaveBtn').onclick = () => { addToList(m); showToast('❤️ Guardada en tu lista'); };
+  document.getElementById('detailWatchBtn').onclick = () => showToast('🎬 Funcionalidad próximamente');
+  document.getElementById('detailModal').classList.add('open');
+}
+function closeDetail() { document.getElementById('detailModal').classList.remove('open'); }
+document.getElementById('detailModal').addEventListener('click', e => { if (e.target === document.getElementById('detailModal')) closeDetail(); });
+
+function rateStar(btn, val, id) {
+  const stars = document.querySelectorAll('#starsInput .star-btn');
+  stars.forEach((s, i) => s.classList.toggle('lit', i < val));
+  showToast(`⭐ Calificaste con ${val} estrella${val>1?'s':''}`);
+}
+
+// ── MY LIST ──
+function addToList(m) {
+  if (!myList.find(x => x.id === m.id)) myList.push(m);
+}
+
+// ── ONBOARDING ──
+let currentStep = 1;
+function openOnboarding() { document.getElementById('onboardingModal').classList.add('open'); updateStepUI(); }
+function closeOnboarding() { document.getElementById('onboardingModal').classList.remove('open'); }
+function nextStep(n) {
+  document.getElementById('step'+currentStep).classList.remove('active');
+  currentStep = n;
+  document.getElementById('step'+n).classList.add('active');
+  updateStepUI();
+}
+function updateStepUI() {
+  const dots = document.getElementById('stepIndicator');
+  dots.innerHTML = [1,2,3].map(i => `<div class="step-dot ${i<currentStep?'done':i===currentStep?'active':''}"></div>`).join('');
+}
+function finishOnboarding() {
+  closeOnboarding();
+  showToast('🎬 ¡Perfil creado! Recomendaciones personalizadas activadas');
+  // Re-render with "personalized" feel
+  setTimeout(() => filterMovies(), 400);
+}
+function toggle(btn) { btn.classList.toggle('selected'); }
+document.getElementById('onboardingModal').addEventListener('click', e => { if (e.target === document.getElementById('onboardingModal')) closeOnboarding(); });
+
+// ── TOAST ──
+let toastTimer;
+function showToast(msg) {
+  clearTimeout(toastTimer);
+  const t = document.getElementById('toast');
+  document.getElementById('toastMsg').textContent = msg;
+  t.classList.add('show');
+  toastTimer = setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+// ── INIT ──
+function init() {
+  const peliculas = movies.filter(m => m.cat === 'peliculas');
+  renderGrid('movieGrid', peliculas.slice(0, 8));
+  renderGrid('qroGrid', movies.filter(m => m.type === 'queretano' || m.type === 'independiente').slice(0,4));
+  renderGrid('clasicosGrid', movies.filter(m => m.type === 'clasico' || m.genre.includes('Clásico')).slice(0,4));
+  renderGrid('cortosGrid', movies.filter(m => m.cat === 'cortos'));
+  renderEvents();
+  updateStepUI();
+  // Auto-open onboarding on first visit
+  setTimeout(() => openOnboarding(), 800);
+}
+init();
+</script>
+</body>
+</html>
